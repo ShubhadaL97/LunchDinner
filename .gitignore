@@ -1,0 +1,30 @@
+﻿# Dependencies
+node_modules/
+package-lock.json
+
+# Test reports and artifacts
+reports/
+screenshots/
+cucumber-report.html
+cucumber-report.json
+allure-report/
+allure-results/
+
+# IDE and OS
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.env
+.env.local
+
+# Test output files
+*test-output*.txt
+*test-run-output*.txt
+temp-output.txt
+full-test-output.txt
+
+# Playwright
+.playwright/

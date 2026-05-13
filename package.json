@@ -1,0 +1,27 @@
+{
+  "name": "lunchdinner-automation",
+  "version": "1.0.0",
+  "description": "Playwright + Cucumber automation framework for lunchdinner.co.nz",
+  "type": "module",
+  "scripts": {
+    "test": "cucumber-js --config cucumber.cjs",
+    "test:headed": "cross-env HEADED=true cucumber-js --config cucumber.cjs",
+    "test:smoke": "cucumber-js --config cucumber.cjs --tags @smoke",
+    "test:auth": "cucumber-js --config cucumber.cjs --tags @auth",
+    "test:menu": "cucumber-js --config cucumber.cjs --tags @menu",
+    "test:cart": "cucumber-js --config cucumber.cjs --tags @cart",
+    "test:nav": "cucumber-js --config cucumber.cjs --tags @navigation",
+    "allure:generate": "allure generate ./reports/allure-results -o ./reports/allure-report --clean",
+    "allure:open": "allure open ./reports/allure-report",
+    "allure:report": "npm run allure:generate && npm run allure:open"
+  },
+  "devDependencies": {
+    "@cucumber/cucumber": "^11.0.0",
+    "@cucumber/html-formatter": "^21.0.0",
+    "@playwright/test": "^1.60.0",
+    "allure-commandline": "^2.30.0",
+    "allure-cucumberjs": "^3.8.0",
+    "cross-env": "^7.0.3",
+    "playwright": "^1.50.0"
+  }
+}

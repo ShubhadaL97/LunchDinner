@@ -1,0 +1,72 @@
+{
+  "baseUrl": "https://www.lunchdinner.co.nz",
+  "users": {
+    "valid": {
+      "email": "sblnzau@gmail.com",
+      "password": "2014So8#"
+    },
+    "invalid": {
+      "email": "invalid@gmail.com",
+      "password": "WrongPassword99"
+    },
+    "lockedOut": {
+      "email": "locked@example.com",
+      "password": "LockedPass123"
+    }
+  },
+  "registration": {
+    "firstName": "Test",
+    "lastName": "User",
+    "email": "testuser_auto@mailinator.com",
+    "password": "TestPass@123",
+    "confirmPassword": "TestPass@123",
+    "phone": "0210000000",
+    "wrongConfirmPassword": "Different@456"
+  },
+  "checkout": {
+    "delivery": {
+      "firstName": "Test",
+      "lastName": "User",
+      "phone": "0210000000",
+      "address": "123 Queen Street",
+      "suburb": "Auckland CBD",
+      "city": "Auckland",
+      "postcode": "1010",
+      "instructions": "Leave at door"
+    },
+    "payment": {
+      "cardNumber": "4111111111111111",
+      "expiry": "12/26",
+      "cvv": "123",
+      "cardholderName": "Test User"
+    }
+  },
+  "menu": {
+    "categories": ["Lunch", "Dinner", "Vegetarian", "Gluten Free"],
+    "searchTerms": ["chicken", "pasta", "salad"],
+    "invalidSearch": "xyznotexist999"
+  },
+  "contact": {
+    "name": "Test Automation",
+    "email": "automation@test.com",
+    "subject": "Automated Test Inquiry",
+    "message": "This is a test message sent by the automation framework. Please ignore."
+  },
+  "deliveryZones": {
+    "validPostcode": "1010",
+    "invalidPostcode": "9999"
+  },
+  "promoCode": {
+    "valid": "SAVE10",
+    "invalid": "INVALIDCODE123"
+  },
+  "navigation": {
+    "links": ["Menu", "How It Works", "About", "Contact"],
+    "footerLinks": ["FAQ", "Privacy Policy", "Terms & Conditions", "Contact"]
+  },
+  "timeouts": {
+    "pageLoad": 30000,
+    "element": 10000,
+    "animation": 500
+  }
+}
