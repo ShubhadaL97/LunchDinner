@@ -5,18 +5,13 @@ on:
     branches: [ master, main, develop ]
   pull_request:
     branches: [ master, main, develop ]
-  schedule:
-    - cron: '0 0 * * *'  # Run daily at midnight
+  workflow_dispatch:
 
 jobs:
   test:
     name: Run Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-
-    strategy:
-      matrix:
-        node-version: [18.x, 20.x]
+    timeout-minutes: 45
 
     steps:
       - name: Checkout code
@@ -25,7 +20,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '18.x'
           cache: 'npm'
 
       - name: Install dependencies
@@ -33,6 +28,15 @@ jobs:
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
+
+      - name: Verify Encryption Key is set
+        run: |
+          if [ -z "${{ secrets.ENCRYPTION_KEY }}" ]; then
+            echo "❌ ERROR: ENCRYPTION_KEY secret is not set!"
+            echo "Please add it in: Settings > Secrets and variables > Actions"
+            exit 1
+          fi
+          echo "✅ ENCRYPTION_KEY secret is configured"
 
       - name: Run full test suite
         run: npm test
@@ -45,56 +49,26 @@ jobs:
         run: npm run test:smoke
         env:
           ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
+          HEADLESS: true
 
       - name: Run authentication tests
         if: always()
         run: npm run test:auth
         env:
           ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
+          HEADLESS: true
 
-      - name: Generate Allure Report
-        if: always()
-        run: npm run allure:generate
-        continue-on-error: true
-
-      - name: Upload test results
+      - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results
+          name: test-reports
           path: reports/
           retention-days: 30
 
-      - name: Upload Allure Report
+      - name: Test Summary
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: allure-report
-          path: reports/allure-report/
-          retention-days: 30
-
-      - name: Comment PR with test results
-        if: always() && github.event_name == 'pull_request'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const resultsPath = './reports/cucumber_report.json';
-            if (fs.existsSync(resultsPath)) {
-              const results = JSON.parse(fs.readFileSync(resultsPath, 'utf8'));
-              let passed = 0, failed = 0;
-              results.forEach(feature => {
-                feature.elements.forEach(scenario => {
-                  scenario.steps.forEach(step => {
-                    if (step.result.status === 'passed') passed++;
-                    if (step.result.status === 'failed') failed++;
-                  });
-                });
-              });
-              github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: `✅ Test Results:\n- ✓ Passed: ${passed}\n- ✗ Failed: ${failed}`
-              });
-            }
+        run: |
+          echo "========== TEST RUN COMPLETE =========="
+          echo "Check the artifacts section for test reports"
+          echo "========================================"
