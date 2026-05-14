@@ -13,7 +13,9 @@
     "test:nav": "cucumber-js --config cucumber.cjs --tags @navigation",
     "allure:generate": "allure generate ./reports/allure-results -o ./reports/allure-report --clean",
     "allure:open": "allure open ./reports/allure-report",
-    "allure:report": "npm run allure:generate && npm run allure:open"
+    "allure:report": "npm run allure:generate && npm run allure:open",
+    "encrypt:data": "node encrypt-testdata.js encrypt",
+    "decrypt:data": "node encrypt-testdata.js decrypt"
   },
   "devDependencies": {
     "@cucumber/cucumber": "^11.0.0",

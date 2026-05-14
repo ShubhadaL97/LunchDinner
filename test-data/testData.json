@@ -3,25 +3,25 @@
   "users": {
     "valid": {
       "email": "sblnzau@gmail.com",
-      "password": "2014So8#"
+      "password": "95811016fe3a5a352d090fc4af49e175:4ad23d37a4ddffcf8488f8ded37e1efc"
     },
     "invalid": {
       "email": "invalid@gmail.com",
-      "password": "WrongPassword99"
+      "password": "b180df6b7bd1fd9d35a086165e9cf87e:6b670c65250d385ec4ec2cf577bc70bd"
     },
     "lockedOut": {
       "email": "locked@example.com",
-      "password": "LockedPass123"
+      "password": "0e36f24b1ac9f1e97d263809d1a3e26a:238884c7375b482645e20f35d7b2387c"
     }
   },
   "registration": {
     "firstName": "Test",
     "lastName": "User",
     "email": "testuser_auto@mailinator.com",
-    "password": "TestPass@123",
-    "confirmPassword": "TestPass@123",
+    "password": "1ee71e016c1a3bf393d2d0ec366afe72:826f1a6dc6f17b8330f1e518ff87ee59",
+    "confirmPassword": "5d9bfe215f7721570c6dfbdf79dde699:5ba8e156a1a7c52a85daa9e7e00edc01",
     "phone": "0210000000",
-    "wrongConfirmPassword": "Different@456"
+    "wrongConfirmPassword": "1f6039e7a61d59e64e8300cabc5b81ea:7e2a0d0c74dae0de335c3259758ebff9"
   },
   "checkout": {
     "delivery": {
@@ -35,15 +35,24 @@
       "instructions": "Leave at door"
     },
     "payment": {
-      "cardNumber": "4111111111111111",
+      "cardNumber": "3d544d6c27d949719452ab44d1b9ecc1:60cc6417c15b4a4fa3020ec490c8137b967644649490cfee915dc8a3b463b50a",
       "expiry": "12/26",
-      "cvv": "123",
+      "cvv": "4c358bb74d561fe92ea41cf0e1c41649:0b406e9eeb189948fc630310ca6ebf4c",
       "cardholderName": "Test User"
     }
   },
   "menu": {
-    "categories": ["Lunch", "Dinner", "Vegetarian", "Gluten Free"],
-    "searchTerms": ["chicken", "pasta", "salad"],
+    "categories": [
+      "Lunch",
+      "Dinner",
+      "Vegetarian",
+      "Gluten Free"
+    ],
+    "searchTerms": [
+      "chicken",
+      "pasta",
+      "salad"
+    ],
     "invalidSearch": "xyznotexist999"
   },
   "contact": {
@@ -61,8 +70,18 @@
     "invalid": "INVALIDCODE123"
   },
   "navigation": {
-    "links": ["Menu", "How It Works", "About", "Contact"],
-    "footerLinks": ["FAQ", "Privacy Policy", "Terms & Conditions", "Contact"]
+    "links": [
+      "Menu",
+      "How It Works",
+      "About",
+      "Contact"
+    ],
+    "footerLinks": [
+      "FAQ",
+      "Privacy Policy",
+      "Terms & Conditions",
+      "Contact"
+    ]
   },
   "timeouts": {
     "pageLoad": 30000,
