@@ -1,0 +1,83 @@
+name: Diagnostic Check
+
+on:
+  workflow_dispatch:
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+          cache: 'npm'
+
+      - name: Check Environment
+        run: |
+          echo "========== ENVIRONMENT CHECK =========="
+          echo "Node version: $(node --version)"
+          echo "npm version: $(npm --version)"
+          echo "OS: $(uname -a)"
+          echo "Working directory: $(pwd)"
+          echo "Files:"
+          ls -la | head -20
+
+      - name: Check Secrets
+        run: |
+          echo "========== CHECKING SECRETS =========="
+          if [ -z "${{ secrets.ENCRYPTION_KEY }}" ]; then
+            echo "❌ ENCRYPTION_KEY secret is NOT set"
+            exit 1
+          else
+            echo "✅ ENCRYPTION_KEY secret is set"
+            echo "First 20 chars: $(echo '${{ secrets.ENCRYPTION_KEY }}' | cut -c1-20)..."
+          fi
+
+      - name: Check Website Connectivity
+        run: |
+          echo "========== TESTING WEBSITE ACCESS =========="
+          if curl -s -o /dev/null -w "%{http_code}" https://www.lunchdinner.co.nz; then
+            echo "✅ Website is accessible"
+          else
+            echo "❌ Website is NOT accessible from this environment"
+          fi
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Install Playwright
+        run: npx playwright install --with-deps
+
+      - name: Run Verification Script
+        run: node verify-setup.js
+
+      - name: Try Loading Test Data
+        run: |
+          echo "========== LOADING TEST DATA =========="
+          node -e "
+            import('./utils/helpers.js').then(helpers => {
+              const data = helpers.loadTestData();
+              console.log('✅ Test data loaded successfully');
+              console.log('Users:', Object.keys(data.users));
+              console.log('Valid user email:', data.users.valid.email);
+              console.log('Valid user password decrypted:', data.users.valid.password);
+            }).catch(err => {
+              console.error('❌ Error loading test data:', err.message);
+            });
+          "
+
+      - name: List npm Scripts
+        run: |
+          echo "========== AVAILABLE NPM SCRIPTS =========="
+          npm run 2>&1 | grep -E "test|encrypt|decrypt" || true
+
+      - name: Print Workflow Context
+        run: |
+          echo "========== WORKFLOW CONTEXT =========="
+          echo "GitHub Event: ${{ github.event_name }}"
+          echo "Repository: ${{ github.repository }}"
+          echo "Branch: ${{ github.ref }}"
+          echo "Commit: ${{ github.sha }}"
