@@ -1,7 +1,8 @@
 import { Then } from '@cucumber/cucumber';
 import { expect } from '@playwright/test';
+import { CustomWorld } from '../support/world';
 
-Then('the checkout flow should be visible', async function () {
+Then('the checkout flow should be visible', async function (this: CustomWorld): Promise<void> {
   // Wait for checkout to potentially load
   await this.page.waitForTimeout(1500);
 

@@ -1,16 +1,17 @@
+import { Page } from '@playwright/test';
 import { BasePage } from './base.page.js';
 
 export class AccountPage extends BasePage {
-  constructor(page, baseUrl) {
+  readonly logoutBtn: string = 'button:has-text("Logout"), a:has-text("Logout"), div:has-text("Logout")';
+  readonly orderHistory: string = '[class*="order-history"], [class*="orders"], h2:has-text("Order"), h2:has-text("History")';
+  readonly profileName: string = '[class*="profile"] [class*="name"], [class*="user"] [class*="name"]';
+  readonly usernameButton: string = '[class*="text-neutral-600"][class*="cursor-pointer"]';
+
+  constructor(page: Page, baseUrl: string) {
     super(page, baseUrl);
-    this.logoutBtn     = 'button:has-text("Logout"), a:has-text("Logout"), div:has-text("Logout")';
-    this.orderHistory  = '[class*="order-history"], [class*="orders"], h2:has-text("Order"), h2:has-text("History")';
-    this.profileName   = '[class*="profile"] [class*="name"], [class*="user"] [class*="name"]';
-    this.usernameButton = '[class*="text-neutral-600"][class*="cursor-pointer"]'; // Username div with cursor-pointer
   }
 
-  async isUsernameVisible() {
-    // Check if username is displayed (login was successful)
+  async isUsernameVisible(): Promise<boolean> {
     try {
       const bodyText = await this.page.textContent('body');
       return bodyText?.includes('sblnzau') || false;
@@ -19,13 +20,9 @@ export class AccountPage extends BasePage {
     }
   }
 
-  async clickUsernameButton() {
-    // Click the username (sblnzau) button - this opens account menu
-    // The username appears as a clickable div with class containing "cursor-pointer"
-
+  async clickUsernameButton(): Promise<void> {
     console.log('Clicking username button...');
 
-    // Method 1: Try using class selector
     try {
       const userButton = this.page.locator('[class*="text-neutral-600"][class*="cursor-pointer"]').first();
       await userButton.click();
@@ -36,15 +33,13 @@ export class AccountPage extends BasePage {
       console.log('Method 1 failed, trying Method 2');
     }
 
-    // Method 2: Find and click using JavaScript
     const found = await this.page.evaluate(() => {
       const elements = Array.from(document.querySelectorAll('*'));
 
-      // Find the username div that is clickable
       const userElement = elements.find(el => {
-        const text = el.textContent.trim();
+        const text = el.textContent?.trim();
         const className = el.className.toString();
-        const isExactUsername = text === 'sblnzau' || (text.includes('sblnzau') && text.length < 100);
+        const isExactUsername = text === 'sblnzau' || (text?.includes('sblnzau') && (text?.length || 0) < 100);
         const hasClickableClass = className.includes('cursor-pointer');
 
         return isExactUsername && hasClickableClass;
@@ -52,7 +47,7 @@ export class AccountPage extends BasePage {
 
       if (userElement) {
         console.log('Found username button');
-        userElement.click();
+        (userElement as HTMLElement).click();
         return true;
       }
 
@@ -66,52 +61,46 @@ export class AccountPage extends BasePage {
     await this.page.waitForTimeout(800);
   }
 
-  async clickLogout() {
+  async clickLogout(): Promise<void> {
     console.log('🔐 Starting logout flow...');
 
-    // Step 1: Click username to open account menu
     console.log('Step 1️⃣: Clicking username button');
     await this.clickUsernameButton();
 
-    // Step 2: Wait for account menu to appear
     console.log('Step 2️⃣: Waiting for account menu (2 seconds)');
     await this.page.waitForTimeout(2000);
 
-    // Step 3: Find and click Logout button
     console.log('Step 3️⃣: Finding and clicking Logout button');
 
     const logoutClicked = await this.page.evaluate(() => {
       const allElements = Array.from(document.querySelectorAll('*'));
 
-      // Find element with "Logout" text - the menu item
       const logoutElement = allElements.find(el => {
-        const text = el.textContent.toLowerCase().trim();
-        // Look for exact match or main logout entry (not inside a longer string)
+        const text = el.textContent?.toLowerCase().trim();
         const isLogout = (text === 'logout' || text === 'log out' || text === 'sign out');
         const className = (el.className && typeof el.className === 'string') ? el.className : '';
 
-        // Prefer clickable elements
         const isClickableType = (
-          el.tagName === 'BUTTON' ||
-          el.tagName === 'A' ||
+          (el as HTMLElement).tagName === 'BUTTON' ||
+          (el as HTMLElement).tagName === 'A' ||
           className.includes('cursor-pointer') ||
           className.includes('btn') ||
-          el.role === 'button'
+          (el as HTMLElement).getAttribute('role') === 'button'
         );
 
         return isLogout && isClickableType;
       });
 
       if (logoutElement) {
-        console.log(`Found logout: <${logoutElement.tagName}> "${logoutElement.textContent}"`);
+        console.log(`Found logout: <${(logoutElement as HTMLElement).tagName}> "${logoutElement.textContent}"`);
         try {
-          logoutElement.click();
+          (logoutElement as HTMLElement).click();
           console.log('✅ Clicked logout button');
           return true;
         } catch (e) {
           console.log('Direct click failed, trying parent click');
-          if (logoutElement.parentElement) {
-            logoutElement.parentElement.click();
+          if ((logoutElement as HTMLElement).parentElement) {
+            ((logoutElement as HTMLElement).parentElement as HTMLElement).click();
             return true;
           }
         }
@@ -125,16 +114,13 @@ export class AccountPage extends BasePage {
       throw new Error('Could not find or click Logout button. Check if account menu opened properly.');
     }
 
-    // Step 4: Wait for logout to complete
     console.log('Step 4️⃣: Waiting for logout to process (2 seconds)');
     await this.page.waitForTimeout(2000);
 
-    // Step 5: Reload page
     console.log('Step 5️⃣: Reloading page');
     await this.navigate('/');
     await this.page.waitForTimeout(1000);
 
-    // Step 6: Verify login button is visible
     console.log('Step 6️⃣: Verifying logout success');
     try {
       await this.page.locator('button:has-text("Login")').waitFor({
@@ -147,7 +133,7 @@ export class AccountPage extends BasePage {
     }
   }
 
-  async isLogoutVisible() {
+  async isLogoutVisible(): Promise<boolean> {
     return this.isVisible(this.logoutBtn);
   }
 }

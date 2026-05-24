@@ -1,35 +1,34 @@
+import { Page } from '@playwright/test';
 import { BasePage } from './base.page.js';
 
 export class CartPage extends BasePage {
-  constructor(page, baseUrl) {
+  readonly cartSection: string = 'h2:has-text("Cart")';
+  readonly emptyCartMsg: string = 'text=Your cart is empty';
+  readonly cartItems: string = '[class*="cart"] h3, [class*="cart"] [class*="item"]';
+  readonly removeBtn: string = 'button[aria-label*="remove"], button:has-text("Remove"), button[class*="remove"]';
+  readonly checkoutBtn: string = 'button:has-text("Checkout"), button:has-text("Proceed"), [role="button"]:has-text("Checkout")';
+  readonly cartTotal: string = '[class*="cart"] [class*="total"], [class*="cart"] span:has-text("$")';
+  readonly cartItemCount: string = '[class*="cart"] [class*="count"], [class*="badge"]';
+
+  constructor(page: Page, baseUrl: string) {
     super(page, baseUrl);
-    this.cartSection     = 'h2:has-text("Cart")';
-    this.emptyCartMsg    = 'text=Your cart is empty';
-    this.cartItems       = '[class*="cart"] h3, [class*="cart"] [class*="item"]';
-    this.removeBtn       = 'button[aria-label*="remove"], button:has-text("Remove"), button[class*="remove"]';
-    this.checkoutBtn     = 'button:has-text("Checkout"), button:has-text("Proceed"), [role="button"]:has-text("Checkout")';
-    this.cartTotal       = '[class*="cart"] [class*="total"], [class*="cart"] span:has-text("$")';
-    this.cartItemCount   = '[class*="cart"] [class*="count"], [class*="badge"]';
   }
 
-  async scrollToCart() {
+  async scrollToCart(): Promise<void> {
     await this.page.locator(this.cartSection).scrollIntoViewIfNeeded();
     await this.page.waitForTimeout(500);
   }
 
-  async isCartSectionVisible() {
+  async isCartSectionVisible(): Promise<boolean> {
     return this.isVisible(this.cartSection);
   }
 
-  async isEmptyCartVisible() {
+  async isEmptyCartVisible(): Promise<boolean> {
     try {
-      // Wait a bit for cart to potentially update
       await this.page.waitForTimeout(500);
 
-      // Check if empty message is still visible
       const emptyMsgVisible = await this.isVisible(this.emptyCartMsg).catch(() => false);
 
-      // Also check for cart items as an alternate indicator
       if (!emptyMsgVisible) {
         const itemCount = await this.getCartItemCount();
         return itemCount === 0;
@@ -37,14 +36,13 @@ export class CartPage extends BasePage {
 
       return emptyMsgVisible;
     } catch (e) {
-      console.log('Error checking cart empty status:', e.message);
+      console.log('Error checking cart empty status:', e instanceof Error ? e.message : String(e));
       return false;
     }
   }
 
-  async isCheckoutBtnVisible() {
+  async isCheckoutBtnVisible(): Promise<boolean> {
     try {
-      // Try multiple selectors for checkout button
       const selectors = [
         'button:has-text("Checkout")',
         'button:has-text("Proceed")',
@@ -63,13 +61,12 @@ export class CartPage extends BasePage {
 
       return false;
     } catch (e) {
-      console.log('Error checking checkout button visibility:', e.message);
+      console.log('Error checking checkout button visibility:', e instanceof Error ? e.message : String(e));
       return false;
     }
   }
 
-  async clickCheckout() {
-    // Try multiple selectors for checkout button
+  async clickCheckout(): Promise<void> {
     const selectors = [
       'button:has-text("Checkout")',
       'button:has-text("Proceed")',
@@ -101,8 +98,7 @@ export class CartPage extends BasePage {
     await this.waitForPageLoad();
   }
 
-  async getCartItemCount() {
-    // Simplest approach: count remove buttons - each item in cart must have one
+  async getCartItemCount(): Promise<number> {
     try {
       const count = await this.page.locator(this.removeBtn).count();
       if (count > 0) {
@@ -110,10 +106,9 @@ export class CartPage extends BasePage {
         return count;
       }
     } catch (e) {
-      console.log('Error counting remove buttons:', e.message);
+      console.log('Error counting remove buttons:', e instanceof Error ? e.message : String(e));
     }
 
-    // Fallback: look for any elements with price/item names in cart
     try {
       const items = await this.page.locator('[class*="cart"] li, [class*="cart"] [class*="item"]').all();
       if (items.length > 0) {
@@ -121,20 +116,20 @@ export class CartPage extends BasePage {
         return items.length;
       }
     } catch (e) {
-      console.log('Error counting items:', e.message);
+      console.log('Error counting items:', e instanceof Error ? e.message : String(e));
     }
 
     return 0;
   }
 
-  async removeFirstItem() {
+  async removeFirstItem(): Promise<void> {
     await this.page.locator(this.removeBtn).first().click();
     await this.page.waitForTimeout(500);
   }
 
-  async getCartItemPrices() {
+  async getCartItemPrices(): Promise<number[]> {
     const items = await this.page.locator('[class*="cart"] [class*="item"], [class*="cart"] li').all();
-    const prices = [];
+    const prices: number[] = [];
 
     for (const item of items) {
       const priceText = await item.locator('text=/\\$\\d+\\.?\\d*/').textContent();
@@ -149,22 +144,22 @@ export class CartPage extends BasePage {
     return prices;
   }
 
-  async calculateCartTotal() {
+  async calculateCartTotal(): Promise<number> {
     const prices = await this.getCartItemPrices();
     return prices.reduce((sum, price) => sum + price, 0);
   }
 
-  async getDisplayedTotal() {
+  async getDisplayedTotal(): Promise<number> {
     try {
       const totalText = await this.page.locator(this.cartTotal).first().textContent();
-      const match = totalText.match(/\$?([\d.]+)/);
+      const match = totalText?.match(/\$?([\d.]+)/);
       return match ? parseFloat(match[1]) : 0;
     } catch (e) {
       return 0;
     }
   }
 
-  async removeItemByIndex(index = 0) {
+  async removeItemByIndex(index: number = 0): Promise<void> {
     const removeButtons = this.page.locator(this.removeBtn);
     const count = await removeButtons.count();
     if (count > index) {

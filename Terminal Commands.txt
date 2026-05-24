@@ -1,0 +1,18 @@
+Password Encryption :-
+node encrypt-password.js "YourPassword123"
+
+Password decryption command :-
+
+View all pwd:-node view-password.js all
+view specific pwd:- 
+# View valid user password
+node view-password.js valid
+
+# View registration password
+node view-password.js registration
+
+# View payment CVV
+node view-password.js cvv
+
+# View card number
+node view-password.js card

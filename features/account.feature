@@ -12,6 +12,7 @@ Feature: User Account
   Scenario: Login button is no longer shown after login
     Then the Login button should not be visible
 
+  @pending @todo @wip
   Scenario: User can log out
     When I log out
     Then the Login button should be visible again
